@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <RootNamespace>Data</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\ExpenseManager.Models\ExpenseManager.Models.csproj" />
+      <ProjectReference Include="..\ExpenseManager.ViewModels\ExpenseManager.ViewModels.csproj" />
+    </ItemGroup>
+
+</Project>
