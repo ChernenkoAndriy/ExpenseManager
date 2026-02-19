@@ -1,0 +1,43 @@
+﻿<Page x:Class="ExpenseManager.UI.WalletDetailsPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:ExpenseManager.UI"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800"
+      Title="WalletDetailsPage">
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Button x:Name="BackButton" Content="← Back to Wallets" 
+            HorizontalAlignment="Left" Padding="10,5" Click="BackButton_Click"/>
+
+        <StackPanel Grid.Row="1" Margin="0,20,0,10">
+            <TextBlock x:Name="WalletNameText" Text="Wallet Name" FontSize="22" FontWeight="Bold"/>
+            <TextBlock x:Name="WalletBalanceText" Text="Balance: 0.00" FontSize="16" Foreground="Green"/>
+        </StackPanel>
+
+        <DataGrid Grid.Row="2" x:Name="TransactionsDataGrid" 
+              AutoGenerateColumns="False" IsReadOnly="True" Margin="0,10,0,0">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Date" Binding="{Binding DateTime, StringFormat=\{0:dd.MM.yyyy HH:mm\}}" Width="130"/>
+                <DataGridTextColumn Header="Category" Binding="{Binding Category}" Width="100"/>
+                <DataGridTextColumn Header="Amount" Binding="{Binding Amount}" Width="80"/>
+                <DataGridTextColumn Header="Comment" Binding="{Binding Description}" Width="*"/>
+                <DataGridTemplateColumn Header="Actions">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Content="Details" Click="TransactionDetails_Click"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</Page>

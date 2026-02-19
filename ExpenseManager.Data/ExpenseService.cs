@@ -1,23 +1,24 @@
+using System.Collections.Generic;
+using System.Linq;
 using ExpenseManager.Models;
-using ExpenseManager.ViewModels;
 
 namespace ExpenseManager.Data
 {
-    public class ExpenseService
+    public class ExpenseService : IExpenseService
     {
-        public List<WalletViewModel> GetWallets()
+        public IEnumerable<Wallet> GetAllWallets()
         {
-            return Storage.Wallets.Select(w => new WalletViewModel(w)).ToList();
+            return Storage.Wallets;
         }
-        
-        public void LoadTransactionsForWallet(WalletViewModel walletVm)
-        {
-            var transactions = Storage.Transactions
-                .Where(t => t.WalletId == Storage.Wallets.First(w => w.Name == walletVm.Name).Id)
-                .Select(t => new TransactionViewModel(t))
-                .ToList();
 
-            walletVm.Transactions = transactions;
+        public IEnumerable<Transaction> GetTransactionsByWalletId(int walletId)
+        {
+            return Storage.Transactions.Where(t => t.WalletId == walletId);
+        }
+
+        public Transaction GetTransactionById(int transactionId)
+        {
+            return Storage.Transactions.FirstOrDefault(t => t.Id == transactionId);
         }
     }
 }
