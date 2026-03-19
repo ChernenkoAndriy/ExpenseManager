@@ -4,23 +4,33 @@ namespace ExpenseManager.ViewModels
 {
     public class TransactionViewModel
     {
-        private readonly Transaction _transaction;
+        public int Id { get; set; }
+        public int WalletId { get; set; }
+        public decimal Amount { get; set; }
+        public string Category { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public DateTime DateTime { get; set; } = DateTime.Now;
+
+        public bool IsExpense => Amount < 0;
+        public string TransactionType => IsExpense ? "Expense" : "Income";
+        public string FormattedDate => DateTime.ToString("dd.MM.yyyy HH:mm");
+
+        public TransactionViewModel() { } 
 
         public TransactionViewModel(Transaction transaction)
         {
-            _transaction = transaction;
+            Id = transaction.Id;
+            WalletId = transaction.WalletId;
+            Amount = transaction.Amount;
+            Category = transaction.Category.ToString();
+            Description = transaction.Description;
+            DateTime = transaction.DateTime;
         }
-        public decimal Amount => _transaction.Amount;
-        public string Category => _transaction.Category.ToString();
-        public string Description => _transaction.Description;
-        public string Date => _transaction.DateTime.ToString("dd.MM.yyyy HH:mm");
-
-        public bool IsExpense => _transaction.Amount < 0;
 
         public override string ToString()
         {
             string type = IsExpense ? "[Expense]" : "[Income]";
-            return $"{Date} | {type} {Category}: {Amount} ({Description})";
+            return $"{FormattedDate} | {type} {Category}: {Amount} ({Description})";
         }
     }
 }

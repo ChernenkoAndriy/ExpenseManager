@@ -16,17 +16,23 @@
 
             <Border BorderBrush="LightGray" BorderThickness="1" Padding="20" CornerRadius="5">
                 <StackPanel>
-                    <TextBlock Text="Amount:" Foreground="Gray" Margin="0,5,0,0"/>
-                    <TextBlock x:Name="AmountText" FontSize="20" FontWeight="Bold" Text="0.00"/>
+                    <TextBlock Text="Transaction ID:" Foreground="Gray"/>
+                    <TextBlock Text="{Binding Id}" FontSize="14" Margin="0,0,0,10"/>
+
+                    <TextBlock Text="Amount:" Foreground="Gray"/>
+                    <TextBlock x:Name="AmountText" FontSize="20" FontWeight="Bold" Text="{Binding Amount, StringFormat={}{0:N2}}"/>
+
+                    <TextBlock Text="Type:" Foreground="Gray" Margin="0,15,0,0"/>
+                    <TextBlock Text="{Binding TransactionType}" FontSize="16"/>
 
                     <TextBlock Text="Category:" Foreground="Gray" Margin="0,15,0,0"/>
-                    <TextBlock x:Name="CategoryText" FontSize="18" Text="Food"/>
+                    <TextBlock FontSize="18" Text="{Binding Category}"/>
 
                     <TextBlock Text="Date and Time:" Foreground="Gray" Margin="0,15,0,0"/>
-                    <TextBlock x:Name="DateText" FontSize="16" Text="01.01.2024 12:00"/>
+                    <TextBlock FontSize="16" Text="{Binding FormattedDate}"/>
 
                     <TextBlock Text="Comment:" Foreground="Gray" Margin="0,15,0,0"/>
-                    <TextBlock x:Name="DescriptionText" FontSize="16" TextWrapping="Wrap" Text="No comment"/>
+                    <TextBlock FontSize="16" TextWrapping="Wrap" Text="{Binding Description}"/>
                 </StackPanel>
             </Border>
         </StackPanel>

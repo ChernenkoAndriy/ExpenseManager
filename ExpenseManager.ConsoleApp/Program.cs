@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+using System.Linq;
 using ExpenseManager.Data;
 using ExpenseManager.ViewModels;
 
@@ -7,13 +8,12 @@ namespace ExpenseManager.ConsoleApp
 {
     class Program
     {
-        private static readonly ExpenseService _service = new ExpenseService();
+        private static readonly IExpenseService _service = new ExpenseService();
 
         static void Main(string[] args)
         {
-            // Set encoding to UTF8 for proper currency and symbol rendering
             Console.OutputEncoding = Encoding.UTF8;
-            
+
             bool isRunning = true;
 
             while (isRunning)
@@ -22,14 +22,20 @@ namespace ExpenseManager.ConsoleApp
                 Console.WriteLine("================================");
                 Console.WriteLine("       EXPENSE MANAGER v1.0     ");
                 Console.WriteLine("================================");
-                
-                var wallets = _service.GetWallets();
+
+                var wallets = _service.GetAllWallets().ToList();
 
                 Console.WriteLine("\nYOUR WALLETS:");
-                for (int i = 0; i < wallets.Count; i++)
+                if (!wallets.Any())
                 {
-                    // wallet.ToString() is called automatically here
-                    Console.WriteLine($"{i + 1}. {wallets[i]}");
+                    Console.WriteLine("No wallets found.");
+                }
+                else
+                {
+                    for (int i = 0; i < wallets.Count; i++)
+                    {
+                        Console.WriteLine($"{i + 1}. {wallets[i]}");
+                    }
                 }
 
                 Console.WriteLine("\n0. Exit");
@@ -48,31 +54,33 @@ namespace ExpenseManager.ConsoleApp
                     }
                 }
             }
-            
+
             Console.WriteLine("\nThank you for using Expense Manager. Goodbye!");
         }
 
         static void ShowWalletDetails(WalletViewModel wallet)
         {
-            // Service populates the ViewModel with filtered transactions
-            _service.LoadTransactionsForWallet(wallet);
+            var transactions = _service.GetTransactionsByWalletId(wallet.Id).ToList();
 
             Console.Clear();
             Console.WriteLine("================================================");
             Console.WriteLine($"   DETAILS: {wallet.Name.ToUpper()}");
             Console.WriteLine("================================================");
             Console.WriteLine($"Currency: {wallet.Currency}");
-            Console.WriteLine($"Current Balance: {wallet.TotalBalance} {wallet.Currency}");
+
+            decimal currentBalance = transactions.Sum(t => t.Amount);
+            Console.WriteLine($"Current Balance: {currentBalance} {wallet.Currency}");
+
             Console.WriteLine("------------------------------------------------");
             Console.WriteLine("TRANSACTION HISTORY:");
 
-            if (wallet.Transactions.Count == 0)
+            if (!transactions.Any())
             {
                 Console.WriteLine("No transactions found for this wallet.");
             }
             else
             {
-                foreach (var transaction in wallet.Transactions)
+                foreach (var transaction in transactions)
                 {
                     Console.WriteLine(transaction.ToString());
                 }

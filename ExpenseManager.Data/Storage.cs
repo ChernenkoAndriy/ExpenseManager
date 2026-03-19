@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using ExpenseManager.Models;
 using ExpenseManager.Models.Enums;
 
@@ -6,14 +7,14 @@ namespace ExpenseManager.Data
 {
     internal static class Storage
     {
-        public static List<Wallet> Wallets { get; } = new()
+        private static readonly List<Wallet> _wallets = new()
         {
             new Wallet(1, "Main Debit Card", Currency.UAH),
             new Wallet(2, "Cash Wallet", Currency.UAH),
             new Wallet(3, "Travel Fund", Currency.USD)
         };
 
-        public static List<Transaction> Transactions { get; } = new()
+        private static readonly List<Transaction> _transactions = new()
         {
             new Transaction(1, 1, 25000.00m, TransactionCategory.Salary, "Monthly Salary"),
             new Transaction(2, 1, -1200.50m, TransactionCategory.Food, "Weekly Groceries"),
@@ -28,5 +29,10 @@ namespace ExpenseManager.Data
             new Transaction(11, 2, 1000.00m, TransactionCategory.Other, "Cash Gift"),
             new Transaction(12, 2, -150.00m, TransactionCategory.Food, "Coffee & Croissant")
         };
+        public static IReadOnlyCollection<Wallet> Wallets => _wallets.AsReadOnly();
+        public static IReadOnlyCollection<Transaction> Transactions => _transactions.AsReadOnly();
+
+        public static void AddWallet(Wallet wallet) => _wallets.Add(wallet);
+        public static void AddTransaction(Transaction transaction) => _transactions.Add(transaction);
     }
 }

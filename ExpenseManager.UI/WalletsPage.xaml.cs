@@ -12,7 +12,6 @@ namespace ExpenseManager.UI
         {
             InitializeComponent();
             _expenseService = expenseService;
-
             LoadWallets();
         }
 
@@ -25,11 +24,11 @@ namespace ExpenseManager.UI
         {
             var button = sender as Button;
 
-            var selectedWallet = button?.DataContext as ExpenseManager.Models.Wallet;
+            var selectedWalletVm = button?.DataContext as ExpenseManager.ViewModels.WalletViewModel;
 
-            if (selectedWallet != null)
+            if (selectedWalletVm != null)
             {
-                var detailsPage = new WalletDetailsPage(_expenseService, selectedWallet);
+                var detailsPage = new WalletDetailsPage(_expenseService, selectedWalletVm);
 
                 if (this.NavigationService != null)
                 {

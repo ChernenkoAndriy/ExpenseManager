@@ -1,34 +1,24 @@
-﻿using System.Windows;
-using System.Windows.Controls;
-using ExpenseManager.Models;
+﻿using System.Windows.Controls;
+using ExpenseManager.ViewModels;
 
 namespace ExpenseManager.UI
 {
     public partial class TransactionDetailsPage : Page
     {
-        public TransactionDetailsPage(Transaction transaction)
+        public TransactionDetailsPage(TransactionViewModel transaction)
         {
             InitializeComponent();
-            DisplayDetails(transaction);
-        }
 
-        private void DisplayDetails(Transaction t)
-        {
-            AmountText.Text = t.Amount.ToString("N2");
-            CategoryText.Text = t.Category.ToString();
-            DateText.Text = t.DateTime.ToString("f"); 
-            DescriptionText.Text = string.IsNullOrWhiteSpace(t.Description)
-                ? "No description provided"
-                : t.Description;
+            this.DataContext = transaction;
 
-            AmountText.Foreground = t.Amount < 0
+            AmountText.Foreground = transaction.IsExpense
                 ? System.Windows.Media.Brushes.Red
                 : System.Windows.Media.Brushes.Green;
         }
 
-        private void BackButton_Click(object sender, RoutedEventArgs e)
+        private void BackButton_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-            if (this.NavigationService.CanGoBack)
+            if (this.NavigationService != null && this.NavigationService.CanGoBack)
             {
                 this.NavigationService.GoBack();
             }
