@@ -6,34 +6,42 @@
       xmlns:local="clr-namespace:ExpenseManager.UI"
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800"
-      Title="WalletsPage">
+      Title="Мої гаманці">
 
     <Grid Margin="20">
-        <StackPanel>
-            <TextBlock Text="My Wallets" FontSize="24" FontWeight="Bold" Margin="0,0,0,20"/>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
 
-            <ListBox x:Name="WalletsListBox" Height="436" d:ItemsSource="{d:SampleData ItemCount=3}">
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <Grid Margin="5" Width="700">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="150"/>
-                                <ColumnDefinition Width="100"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
+        <DockPanel Grid.Row="0" Margin="0,0,0,20">
+            <TextBlock Text="Мої гаманці" Style="{StaticResource PageTitleStyle}" Margin="0"/>
+            <Button Content="+ Додати гаманець" HorizontalAlignment="Right" 
+                    Style="{StaticResource PrimaryButtonStyle}" Click="AddWalletButton_Click"/>
+        </DockPanel>
 
-                            <TextBlock Grid.Column="0" Text="{Binding Name}" FontWeight="SemiBold" FontSize="16" VerticalAlignment="Center"/>
-                            <TextBlock Grid.Column="1" Text="{Binding Currency}" Foreground="Gray" VerticalAlignment="Center"/>
+        <ListBox Grid.Row="1" x:Name="WalletsListBox" d:ItemsSource="{d:SampleData ItemCount=3}">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Grid Margin="5" Width="720">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="200"/>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
 
-                            <Button Grid.Column="3" 
-                    Content="View Wallet Details" 
-                    Padding="10,5" 
-                    Click="ViewDetailsButton_Click"/>
-                        </Grid>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
-        </StackPanel>
+                        <TextBlock Grid.Column="0" Text="{Binding Name}" FontWeight="SemiBold" FontSize="16" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="1" Text="{Binding Currency, Converter={StaticResource EnumConverter}}" Foreground="Gray" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="2" Text="{Binding TotalBalance, StringFormat={}{0:N2}}" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,20,0"/>
+
+                        <StackPanel Grid.Column="3" Orientation="Horizontal">
+                            <Button Content="Редагувати" Margin="0,0,5,0" Click="EditWalletButton_Click"/>
+                            <Button Content="Деталі" Style="{StaticResource PrimaryButtonStyle}" Click="ViewDetailsButton_Click"/>
+                        </StackPanel>
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
     </Grid>
 </Page>

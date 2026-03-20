@@ -1,5 +1,6 @@
+using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
+using System.Linq;
 using ExpenseManager.Models;
 using ExpenseManager.Models.Enums;
 
@@ -16,23 +17,35 @@ namespace ExpenseManager.Data
 
         private static readonly List<Transaction> _transactions = new()
         {
-            new Transaction(1, 1, 25000.00m, TransactionCategory.Salary, "Monthly Salary"),
-            new Transaction(2, 1, -1200.50m, TransactionCategory.Food, "Weekly Groceries"),
-            new Transaction(3, 1, -350.00m, TransactionCategory.Transport, "Fuel Refill"),
-            new Transaction(4, 1, -800.00m, TransactionCategory.Entertainment, "Cinema & Dinner"),
-            new Transaction(5, 1, -1500.00m, TransactionCategory.Health, "Dental Checkup"),
-            new Transaction(6, 1, -45.00m, TransactionCategory.Transport, "Public Bus Pass"),
-            new Transaction(7, 1, -2100.00m, TransactionCategory.Other, "Electricity Bill"),
-            new Transaction(8, 1, -600.00m, TransactionCategory.Food, "Office Lunch"),
-            new Transaction(9, 1, -120.00m, TransactionCategory.Entertainment, "Netflix Subscription"),
-            new Transaction(10, 1, -300.00m, TransactionCategory.Other, "Mobile Top-up"),
-            new Transaction(11, 2, 1000.00m, TransactionCategory.Other, "Cash Gift"),
-            new Transaction(12, 2, -150.00m, TransactionCategory.Food, "Coffee & Croissant")
+            new Transaction(1, 1, 25000.00m, TransactionCategory.Salary, "Monthly Salary", DateTime.Now.AddDays(-30)),
+            new Transaction(2, 1, -1200.50m, TransactionCategory.Food, "Weekly Groceries", DateTime.Now.AddDays(-25)),
+            new Transaction(3, 1, -350.00m, TransactionCategory.Transport, "Fuel Refill", DateTime.Now.AddDays(-20)),
+            new Transaction(11, 2, 1000.00m, TransactionCategory.Other, "Cash Gift", DateTime.Now.AddDays(-15)),
+            new Transaction(12, 2, -150.00m, TransactionCategory.Food, "Coffee & Croissant", DateTime.Now.AddMinutes(-30))
         };
+
         public static IReadOnlyCollection<Wallet> Wallets => _wallets.AsReadOnly();
         public static IReadOnlyCollection<Transaction> Transactions => _transactions.AsReadOnly();
 
         public static void AddWallet(Wallet wallet) => _wallets.Add(wallet);
+
+        public static void UpdateWallet(Wallet updatedWallet)
+        {
+            var index = _wallets.FindIndex(w => w.Id == updatedWallet.Id);
+            if (index != -1) _wallets[index] = updatedWallet;
+        }
+
+        public static void DeleteWallet(int walletId)
+        {
+            _wallets.RemoveAll(w => w.Id == walletId);
+            _transactions.RemoveAll(t => t.WalletId == walletId);
+        }
+
         public static void AddTransaction(Transaction transaction) => _transactions.Add(transaction);
+
+        public static void DeleteTransaction(int transactionId)
+        {
+            _transactions.RemoveAll(t => t.Id == transactionId);
+        }
     }
 }

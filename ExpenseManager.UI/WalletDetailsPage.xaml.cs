@@ -1,9 +1,9 @@
-﻿using ExpenseManager.Data;
-using ExpenseManager.Models;
-using ExpenseManager.ViewModels;
-using System.Linq;
+﻿using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using ExpenseManager.Data;
+using ExpenseManager.ViewModels;
+using System.Collections.ObjectModel;
 
 namespace ExpenseManager.UI
 {
@@ -17,38 +17,61 @@ namespace ExpenseManager.UI
             InitializeComponent();
             _expenseService = expenseService;
             _walletVm = walletVm;
-            DisplayWalletInfo();
+            this.Loaded += (s, e) => RefreshData();
         }
 
-        private void DisplayWalletInfo()
+        private void RefreshData()
         {
-            WalletNameText.Text = _walletVm.Name;
-
             var transactions = _expenseService.GetTransactionsByWalletId(_walletVm.Id).ToList();
-            TransactionsDataGrid.ItemsSource = transactions;
+            _walletVm.Transactions = new ObservableCollection<TransactionViewModel>(transactions);
 
-            decimal balance = transactions.Sum(t => t.Amount);
-            WalletBalanceText.Text = $"Balance: {_walletVm.TotalBalance} {_walletVm.Currency}";
+            var updatedWallet = _expenseService.GetWalletById(_walletVm.Id);
+            if (updatedWallet != null)
+            {
+                _walletVm.Name = updatedWallet.Name;
+                _walletVm.Currency = updatedWallet.Currency;
+            }
+
+            TransactionsDataGrid.ItemsSource = _walletVm.Transactions;
+            WalletNameText.Text = _walletVm.Name;
+            WalletBalanceText.Text = $"Баланс: {_walletVm.TotalBalance:N2} {_walletVm.Currency}";
+
+            if (_walletVm.TotalBalance >= 0)
+                WalletBalanceText.Foreground = System.Windows.Media.Brushes.Green;
+            else
+                WalletBalanceText.Foreground = System.Windows.Media.Brushes.Red;
         }
 
         private void BackButton_Click(object sender, RoutedEventArgs e)
         {
-            if (this.NavigationService.CanGoBack)
-            {
-                this.NavigationService.GoBack();
-            }
+            NavigationService?.GoBack();
+        }
+
+        private void AddTransaction_Click(object sender, RoutedEventArgs e)
+        {
+            NavigationService?.Navigate(new AddTransactionPage(_expenseService, _walletVm.Id));
         }
 
         private void TransactionDetails_Click(object sender, RoutedEventArgs e)
         {
-            var button = sender as Button;
-
-            var selectedTransactionVm = button?.DataContext as ExpenseManager.ViewModels.TransactionViewModel;
-
-            if (selectedTransactionVm != null)
+            if ((sender as Button)?.DataContext is TransactionViewModel selectedTransaction)
             {
-                var detailsPage = new TransactionDetailsPage(selectedTransactionVm);
-                this.NavigationService?.Navigate(detailsPage);
+                NavigationService?.Navigate(new TransactionDetailsPage(selectedTransaction));
+            }
+        }
+
+        private void DeleteTransaction_Click(object sender, RoutedEventArgs e)
+        {
+            if ((sender as Button)?.DataContext is TransactionViewModel selectedTransaction)
+            {
+                var result = MessageBox.Show("Ви впевнені, що хочете видалити цю транзакцію?",
+                    "Підтвердження", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    _expenseService.DeleteTransaction(selectedTransaction.Id);
+                    RefreshData();
+                }
             }
         }
     }

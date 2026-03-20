@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using ExpenseManager.Data;
+using ExpenseManager.ViewModels;
 
 namespace ExpenseManager.UI
 {
@@ -12,32 +13,32 @@ namespace ExpenseManager.UI
         {
             InitializeComponent();
             _expenseService = expenseService;
-            LoadWallets();
+            this.Loaded += (s, e) => LoadData();
         }
 
-        private void LoadWallets()
+        private void LoadData()
         {
             WalletsListBox.ItemsSource = _expenseService.GetAllWallets();
         }
 
+        private void AddWalletButton_Click(object sender, RoutedEventArgs e)
+        {
+            NavigationService?.Navigate(new EditWalletPage(_expenseService));
+        }
+
+        private void EditWalletButton_Click(object sender, RoutedEventArgs e)
+        {
+            if ((sender as Button)?.DataContext is WalletViewModel selectedWallet)
+            {
+                NavigationService?.Navigate(new EditWalletPage(_expenseService, selectedWallet));
+            }
+        }
+
         private void ViewDetailsButton_Click(object sender, RoutedEventArgs e)
         {
-            var button = sender as Button;
-
-            var selectedWalletVm = button?.DataContext as ExpenseManager.ViewModels.WalletViewModel;
-
-            if (selectedWalletVm != null)
+            if ((sender as Button)?.DataContext is WalletViewModel selectedWallet)
             {
-                var detailsPage = new WalletDetailsPage(_expenseService, selectedWalletVm);
-
-                if (this.NavigationService != null)
-                {
-                    this.NavigationService.Navigate(detailsPage);
-                }
-                else
-                {
-                    MessageBox.Show("Navigation error: Frame not found.");
-                }
+                NavigationService?.Navigate(new WalletDetailsPage(_expenseService, selectedWallet));
             }
         }
     }
