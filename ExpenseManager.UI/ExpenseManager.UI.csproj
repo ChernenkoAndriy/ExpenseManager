@@ -1,11 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <UseWPF>true</UseWPF>
+    <RootNamespace>ExpenseManager.UI</RootNamespace>
+    <EnableDefaultApplicationDefinition>false</EnableDefaultApplicationDefinition>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,9 +14,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ExpenseManager.Data\ExpenseManager.Data.csproj" />
-    <ProjectReference Include="..\ExpenseManager.Models\ExpenseManager.Models.csproj" />
-    <ProjectReference Include="..\ExpenseManager.ViewModels\ExpenseManager.ViewModels.csproj" />
+    <ProjectReference Include="..\ExpenseManager.Services\ExpenseManager.Services.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ApplicationDefinition Include="App.xaml" />
+  </ItemGroup>
 </Project>

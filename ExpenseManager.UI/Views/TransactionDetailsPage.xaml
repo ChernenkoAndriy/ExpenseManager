@@ -1,0 +1,45 @@
+﻿<UserControl x:Class="ExpenseManager.UI.Views.TransactionDetailsPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid Margin="20" MaxWidth="500" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Button Grid.Row="0" Content="← Назад" Command="{Binding BackCommand}" 
+                HorizontalAlignment="Left" Background="Transparent" BorderThickness="0" Foreground="Blue" Margin="0,0,0,20"/>
+
+        <Border Grid.Row="1" BorderBrush="LightGray" BorderThickness="1" CornerRadius="8" Padding="20">
+            <StackPanel>
+                <TextBlock Text="Деталі транзакції" FontSize="20" FontWeight="Bold" Margin="0,0,0,20" HorizontalAlignment="Center"/>
+
+                <TextBlock Text="Сума:" FontWeight="SemiBold" Foreground="Gray"/>
+                <TextBlock Text="{Binding Transaction.Amount, StringFormat={}{0:N2}}" FontSize="32" FontWeight="Bold" Margin="0,0,0,15">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Foreground" Value="Green"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Transaction.Amount, Converter={StaticResource EnumConverter}, ConverterParameter=IsNegative}" Value="True">
+                                    <Setter Property="Foreground" Value="Red"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+
+                <TextBlock Text="ID Транзакції:" FontWeight="SemiBold" Foreground="Gray" Margin="0,0,0,5"/>
+                <TextBlock Text="{Binding Transaction.Id}" FontSize="16" Margin="0,0,0,15"/>
+
+                <TextBlock Text="Категорія:" FontWeight="SemiBold" Foreground="Gray" Margin="0,0,0,5"/>
+                <TextBlock Text="{Binding Transaction.Category, Converter={StaticResource EnumConverter}}" FontSize="16" Margin="0,0,0,15"/>
+
+                <TextBlock Text="Дата:" FontWeight="SemiBold" Foreground="Gray" Margin="0,0,0,5"/>
+                <TextBlock Text="{Binding Transaction.FormattedDate}" FontSize="16" Margin="0,0,0,15"/>
+                
+                <TextBlock Text="Опис:" FontWeight="SemiBold" Foreground="Gray" Margin="0,0,0,5"/>
+                <TextBlock Text="{Binding Transaction.Description}" FontSize="16" TextWrapping="Wrap"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

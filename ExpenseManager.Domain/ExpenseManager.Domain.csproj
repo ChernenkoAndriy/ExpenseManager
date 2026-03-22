@@ -3,9 +3,6 @@
 		<TargetFramework>net10.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
-		<RootNamespace>ExpenseManager.Data</RootNamespace>
+		<RootNamespace>ExpenseManager.Domain</RootNamespace>
 	</PropertyGroup>
-	<ItemGroup>
-	  <ProjectReference Include="..\ExpenseManager.Domain\ExpenseManager.Domain.csproj" />
-	</ItemGroup>
 </Project>
