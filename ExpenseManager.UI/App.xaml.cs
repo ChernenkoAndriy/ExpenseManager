@@ -5,6 +5,7 @@ using ExpenseManager.UI.ViewModels;
 using ExpenseManager.UI.Views;
 using ExpenseManager.Services.Interfaces;
 using ExpenseManager.Services.Implementations;
+using ExpenseManager.Data;
 using ExpenseManager.Data.Interfaces;
 using ExpenseManager.Data.Repositories;
 
@@ -30,17 +31,23 @@ namespace ExpenseManager.UI
 
         private void ConfigureServices(IServiceCollection services)
         {
+            services.AddTransient<ExpenseDbContext>();
+
             services.AddSingleton<INavigationService, NavigationService>();
             services.AddSingleton<MainViewModel>();
+
             services.AddTransient<WalletsViewModel>();
             services.AddTransient<WalletDetailsViewModel>();
             services.AddTransient<EditWalletViewModel>();
             services.AddTransient<AddTransactionViewModel>();
             services.AddTransient<TransactionDetailsViewModel>();
+
             services.AddTransient<IWalletRepository, WalletRepository>();
             services.AddTransient<ITransactionRepository, TransactionRepository>();
+
             services.AddTransient<IWalletService, WalletService>();
             services.AddTransient<ITransactionService, TransactionService>();
+
             services.AddSingleton<MainWindow>(sp => new MainWindow
             {
                 DataContext = sp.GetRequiredService<MainViewModel>()

@@ -4,9 +4,8 @@ namespace ExpenseManager.Data.Interfaces
 {
     public interface ITransactionRepository
     {
-        IEnumerable<Transaction> GetByWalletId(int walletId);
-        void Add(Transaction transaction);
-        void Delete(int id);
-        int GetNextId();
+        Task<IEnumerable<Transaction>> GetByWalletIdAsync(int walletId);
+        Task AddAsync(Transaction transaction);
+        Task DeleteAsync(int id);
     }
 }

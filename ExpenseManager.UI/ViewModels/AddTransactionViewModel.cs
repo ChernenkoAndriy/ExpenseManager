@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Input;
+using System.Threading.Tasks; // ДОДАНО: для роботи з асинхронністю
 using ExpenseManager.Services.Interfaces;
 using ExpenseManager.UI.Commands;
 using ExpenseManager.UI.Services;
@@ -45,12 +46,10 @@ namespace ExpenseManager.UI.ViewModels
         {
             _transactionService = transactionService;
             _navigationService = navigationService;
-            Categories = _transactionService.GetAvailableCategories();
 
-            // Встановлюємо першу категорію за замовчуванням, щоб уникнути помилок збереження
+            Categories = _transactionService.GetAvailableCategories();
             _selectedCategory = Categories.FirstOrDefault() ?? "Other";
 
-            // Прибираємо умову з RelayCommand, щоб кнопка була активна завжди
             SaveCommand = new RelayCommand(OnSave);
             CancelCommand = new RelayCommand(_ => _navigationService.NavigateTo<WalletDetailsViewModel>(_walletId));
         }
@@ -61,7 +60,7 @@ namespace ExpenseManager.UI.ViewModels
                 _walletId = id;
         }
 
-        private void OnSave(object? _)
+        private async void OnSave(object? _)
         {
             if (Amount == 0)
             {
@@ -71,12 +70,19 @@ namespace ExpenseManager.UI.ViewModels
 
             try
             {
-                _transactionService.AddTransaction(_walletId, Amount, SelectedCategory, Description);
+                IsBusy = true; 
+
+                await _transactionService.AddTransactionAsync(_walletId, Amount, SelectedCategory, Description);
+
                 _navigationService.NavigateTo<WalletDetailsViewModel>(_walletId);
             }
             catch (Exception ex)
             {
                 System.Windows.MessageBox.Show(ex.Message, "Помилка", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+            }
+            finally
+            {
+                IsBusy = false; 
             }
         }
     }

@@ -1,33 +1,50 @@
 ﻿using ExpenseManager.Data.Interfaces;
 using ExpenseManager.Domain;
+using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace ExpenseManager.Data.Repositories
 {
     public class WalletRepository : IWalletRepository
     {
-        public IEnumerable<Wallet> GetAll()
+        private readonly ExpenseDbContext _dbContext;
+
+        public WalletRepository(ExpenseDbContext dbContext)
         {
-            return Storage.Wallets;
+            _dbContext = dbContext;
         }
 
-        public Wallet? GetById(int id)
+        public async Task<IEnumerable<Wallet>> GetAllAsync()
         {
-            return Storage.Wallets.FirstOrDefault(w => w.Id == id);
+            return await _dbContext.Wallets.AsNoTracking().ToListAsync();
         }
 
-        public void Add(Wallet wallet)
+        public async Task<Wallet?> GetByIdAsync(int id)
         {
-            Storage.AddWallet(wallet);
+            return await _dbContext.Wallets.AsNoTracking().FirstOrDefaultAsync(w => w.Id == id);
         }
 
-        public void Update(Wallet wallet)
+        public async Task AddAsync(Wallet wallet)
         {
-            Storage.UpdateWallet(wallet);
+            await _dbContext.Wallets.AddAsync(wallet);
+            await _dbContext.SaveChangesAsync();
         }
 
-        public void Delete(int id)
+        public async Task UpdateAsync(Wallet wallet)
         {
-            Storage.DeleteWallet(id);
+            _dbContext.Wallets.Update(wallet);
+            await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task DeleteAsync(int id)
+        {
+            var wallet = await _dbContext.Wallets.FirstOrDefaultAsync(w => w.Id == id);
+            if (wallet != null)
+            {
+                _dbContext.Wallets.Remove(wallet);
+                await _dbContext.SaveChangesAsync();
+            }
         }
     }
 }

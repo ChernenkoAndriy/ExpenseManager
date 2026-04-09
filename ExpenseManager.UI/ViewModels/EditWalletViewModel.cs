@@ -1,9 +1,13 @@
-﻿using System.Windows.Input;
+﻿using System;
+using System.Collections.Generic;
+using System.Windows.Input;
+using System.Threading.Tasks; // ДОДАНО: для роботи з асинхронністю
 using ExpenseManager.Services.Interfaces;
 using ExpenseManager.UI.Commands;
 using ExpenseManager.UI.Services;
 using ExpenseManager.UI.ViewModels.Base;
-using ExpenseManager.Services.DTOs; 
+using ExpenseManager.Services.DTOs;
+
 namespace ExpenseManager.UI.ViewModels
 {
     public class EditWalletViewModel : BaseViewModel, IParameterReceiver
@@ -12,7 +16,7 @@ namespace ExpenseManager.UI.ViewModels
         private readonly INavigationService _navigationService;
         private string _name = string.Empty;
         private string _selectedCurrency = "UAH";
-        private int? _editingWalletId; 
+        private int? _editingWalletId;
 
         public string Name
         {
@@ -35,6 +39,7 @@ namespace ExpenseManager.UI.ViewModels
         {
             _walletService = walletService;
             _navigationService = navigationService;
+
             Currencies = _walletService.GetAvailableCurrencies();
 
             SaveCommand = new RelayCommand(OnSave, _ => !string.IsNullOrWhiteSpace(Name));
@@ -46,16 +51,29 @@ namespace ExpenseManager.UI.ViewModels
             if (parameter is int id)
             {
                 _editingWalletId = id;
-                var wallet = _walletService.GetWalletById(id);
+                LoadWalletDataAsync(id);
+            }
+        }
+
+        private async void LoadWalletDataAsync(int id)
+        {
+            try
+            {
+                IsBusy = true;
+                var wallet = await _walletService.GetWalletByIdAsync(id);
                 if (wallet != null)
                 {
                     Name = wallet.Name;
                     SelectedCurrency = wallet.Currency;
                 }
             }
+            finally
+            {
+                IsBusy = false;
+            }
         }
 
-        private void OnSave(object? _)
+        private async void OnSave(object? _)
         {
             var walletDto = new WalletSaveDto
             {
@@ -64,8 +82,22 @@ namespace ExpenseManager.UI.ViewModels
                 Currency = SelectedCurrency
             };
 
-            _walletService.SaveWallet(walletDto);
-            _navigationService.NavigateTo<WalletsViewModel>();
+            try
+            {
+                IsBusy = true; 
+
+                await _walletService.SaveWalletAsync(walletDto);
+
+                _navigationService.NavigateTo<WalletsViewModel>();
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show(ex.Message, "Помилка", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+            }
+            finally
+            {
+                IsBusy = false;
+            }
         }
     }
 }

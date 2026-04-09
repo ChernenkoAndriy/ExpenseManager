@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows.Input;
+using System.Threading.Tasks;
 using ExpenseManager.Services.DTOs;
 using ExpenseManager.Services.Interfaces;
 using ExpenseManager.UI.Commands;
@@ -17,7 +18,11 @@ namespace ExpenseManager.UI.ViewModels
         public ObservableCollection<WalletListDto> Wallets
         {
             get => _wallets;
-            set => SetProperty(ref _wallets, value);
+            set
+            {
+                _wallets = value;
+                OnPropertyChanged(); 
+            }
         }
 
         public ICommand ViewDetailsCommand { get; }
@@ -33,13 +38,23 @@ namespace ExpenseManager.UI.ViewModels
             AddWalletCommand = new RelayCommand(_ => _navigationService.NavigateTo<EditWalletViewModel>());
             EditWalletCommand = new RelayCommand(OnEditWallet);
 
-            LoadData();
+            LoadDataAsync();
         }
 
-        private void LoadData()
+        private async void LoadDataAsync()
         {
-            var data = _walletService.GetAllWallets();
-            Wallets = new ObservableCollection<WalletListDto>(data);
+            try
+            {
+                IsBusy = true;
+
+                var data = await _walletService.GetAllWalletsAsync();
+
+                Wallets = new ObservableCollection<WalletListDto>(data);
+            }
+            finally
+            {
+                IsBusy = false;
+            }
         }
 
         private void OnViewDetails(object? parameter)

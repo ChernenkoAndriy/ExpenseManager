@@ -1,12 +1,14 @@
 ﻿using ExpenseManager.Services.DTOs;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace ExpenseManager.Services.Interfaces
 {
     public interface IWalletService
     {
-        IEnumerable<WalletListDto> GetAllWallets();
-        WalletDetailsDto? GetWalletById(int id);
-        void SaveWallet(WalletSaveDto walletDto);
-        IEnumerable<string> GetAvailableCurrencies();
+        Task<IEnumerable<WalletListDto>> GetAllWalletsAsync();
+        Task<WalletDetailsDto?> GetWalletByIdAsync(int id);
+        Task SaveWalletAsync(WalletSaveDto walletDto);
+        IEnumerable<string> GetAvailableCurrencies(); 
     }
 }

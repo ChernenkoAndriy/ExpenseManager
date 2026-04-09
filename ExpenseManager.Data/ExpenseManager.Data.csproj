@@ -6,6 +6,9 @@
 		<RootNamespace>ExpenseManager.Data</RootNamespace>
 	</PropertyGroup>
 	<ItemGroup>
+	  <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.5" />
+	</ItemGroup>
+	<ItemGroup>
 	  <ProjectReference Include="..\ExpenseManager.Domain\ExpenseManager.Domain.csproj" />
 	</ItemGroup>
 </Project>

@@ -1,8 +1,10 @@
 ﻿using ExpenseManager.Data.Interfaces;
 using ExpenseManager.Domain;
 using ExpenseManager.Domain.Enums;
-using ExpenseManager.Services.DTOs;
 using ExpenseManager.Services.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace ExpenseManager.Services.Implementations
 {
@@ -15,17 +17,13 @@ namespace ExpenseManager.Services.Implementations
             _transactionRepository = transactionRepository;
         }
 
-       
-
-        public void AddTransaction(int walletId, decimal amount, string category, string description)
+        public async Task AddTransactionAsync(int walletId, decimal amount, string category, string description)
         {
             if (amount == 0) throw new ArgumentException("Сума не може бути нульовою.");
 
             var categoryEnum = Enum.Parse<TransactionCategory>(category);
-            int newId = _transactionRepository.GetNextId();
-
             var transaction = new Transaction(
-                newId,
+                0,
                 walletId,
                 amount,
                 categoryEnum,
@@ -33,12 +31,12 @@ namespace ExpenseManager.Services.Implementations
                 DateTime.Now
             );
 
-            _transactionRepository.Add(transaction);
+            await _transactionRepository.AddAsync(transaction);
         }
 
-        public void DeleteTransaction(int id)
+        public async Task DeleteTransactionAsync(int id)
         {
-            _transactionRepository.Delete(id);
+            await _transactionRepository.DeleteAsync(id);
         }
 
         public IEnumerable<string> GetAvailableCategories()

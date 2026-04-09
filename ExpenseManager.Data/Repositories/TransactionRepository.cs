@@ -1,28 +1,42 @@
 ﻿using ExpenseManager.Data.Interfaces;
 using ExpenseManager.Domain;
+using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace ExpenseManager.Data.Repositories
 {
     public class TransactionRepository : ITransactionRepository
     {
-        public IEnumerable<Transaction> GetByWalletId(int walletId)
+        private readonly ExpenseDbContext _dbContext;
+
+        public TransactionRepository(ExpenseDbContext dbContext)
         {
-            return Storage.Transactions.Where(t => t.WalletId == walletId);
+            _dbContext = dbContext;
         }
 
-        public void Add(Transaction transaction)
+        public async Task<IEnumerable<Transaction>> GetByWalletIdAsync(int walletId)
         {
-            Storage.AddTransaction(transaction);
+            return await _dbContext.Transactions
+                .Where(t => t.WalletId == walletId)
+                .ToListAsync();
         }
 
-        public void Delete(int id)
+        public async Task AddAsync(Transaction transaction)
         {
-            Storage.DeleteTransaction(id);
+            await _dbContext.Transactions.AddAsync(transaction);
+            await _dbContext.SaveChangesAsync();
         }
 
-        public int GetNextId()
+        public async Task DeleteAsync(int id)
         {
-            return Storage.Transactions.Any() ? Storage.Transactions.Max(t => t.Id) + 1 : 1;
+            var transaction = await _dbContext.Transactions.FirstOrDefaultAsync(t => t.Id == id);
+            if (transaction != null)
+            {
+                _dbContext.Transactions.Remove(transaction);
+                await _dbContext.SaveChangesAsync();
+            }
         }
     }
 }

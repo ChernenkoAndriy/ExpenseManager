@@ -3,6 +3,10 @@ using ExpenseManager.Domain;
 using ExpenseManager.Domain.Enums;
 using ExpenseManager.Services.DTOs;
 using ExpenseManager.Services.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace ExpenseManager.Services.Implementations
 {
@@ -17,28 +21,31 @@ namespace ExpenseManager.Services.Implementations
             _transactionRepository = transactionRepository;
         }
 
-        public IEnumerable<WalletListDto> GetAllWallets()
+        public async Task<IEnumerable<WalletListDto>> GetAllWalletsAsync()
         {
-            var wallets = _walletRepository.GetAll();
-            return wallets.Select(w =>
+            var wallets = await _walletRepository.GetAllAsync();
+            var result = new List<WalletListDto>();
+
+            foreach (var w in wallets)
             {
-                var transactions = _transactionRepository.GetByWalletId(w.Id);
-                return new WalletListDto
+                var transactions = await _transactionRepository.GetByWalletIdAsync(w.Id);
+                result.Add(new WalletListDto
                 {
                     Id = w.Id,
                     Name = w.Name,
                     Currency = w.Currency.ToString(),
                     TotalBalance = transactions.Sum(t => t.Amount)
-                };
-            });
+                });
+            }
+            return result;
         }
 
-        public WalletDetailsDto? GetWalletById(int id)
+        public async Task<WalletDetailsDto?> GetWalletByIdAsync(int id)
         {
-            var wallet = _walletRepository.GetById(id);
+            var wallet = await _walletRepository.GetByIdAsync(id);
             if (wallet == null) return null;
 
-            var transactions = _transactionRepository.GetByWalletId(id);
+            var transactions = await _transactionRepository.GetByWalletIdAsync(id);
             var totalBalance = transactions.Sum(t => t.Amount);
 
             return new WalletDetailsDto
@@ -60,11 +67,11 @@ namespace ExpenseManager.Services.Implementations
             };
         }
 
-        public void SaveWallet(WalletSaveDto walletDto)
+        public async Task SaveWalletAsync(WalletSaveDto walletDto)
         {
             if (walletDto.Id.HasValue)
             {
-                var existingWallet = _walletRepository.GetById(walletDto.Id.Value);
+                var existingWallet = await _walletRepository.GetByIdAsync(walletDto.Id.Value);
                 if (existingWallet != null)
                 {
                     var updatedWallet = existingWallet with
@@ -72,20 +79,17 @@ namespace ExpenseManager.Services.Implementations
                         Name = walletDto.Name,
                         Currency = Enum.Parse<Currency>(walletDto.Currency)
                     };
-                    _walletRepository.Update(updatedWallet);
+                    await _walletRepository.UpdateAsync(updatedWallet);
                 }
             }
             else
             {
-                var allWallets = _walletRepository.GetAll();
-                int newId = allWallets.Any() ? allWallets.Max(w => w.Id) + 1 : 1;
-
                 var newWallet = new Wallet(
-                    newId,
+                    0,
                     walletDto.Name,
                     Enum.Parse<Currency>(walletDto.Currency)
                 );
-                _walletRepository.Add(newWallet);
+                await _walletRepository.AddAsync(newWallet);
             }
         }
 

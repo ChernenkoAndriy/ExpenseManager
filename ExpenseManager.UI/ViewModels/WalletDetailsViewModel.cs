@@ -1,4 +1,5 @@
 ﻿using System.Windows.Input;
+using System.Threading.Tasks; 
 using ExpenseManager.Services.DTOs;
 using ExpenseManager.Services.Interfaces;
 using ExpenseManager.UI.Commands;
@@ -44,13 +45,21 @@ namespace ExpenseManager.UI.ViewModels
         {
             if (parameter is int walletId)
             {
-                LoadData(walletId);
+                LoadDataAsync(walletId);
             }
         }
 
-        private void LoadData(int id)
+        private async void LoadDataAsync(int id)
         {
-            Wallet = _walletService.GetWalletById(id);
+            try
+            {
+                IsBusy = true; 
+                Wallet = await _walletService.GetWalletByIdAsync(id);
+            }
+            finally
+            {
+                IsBusy = false;
+            }
         }
 
         private void OnAddTransaction(object? _)
@@ -61,12 +70,21 @@ namespace ExpenseManager.UI.ViewModels
             }
         }
 
-        private void OnDeleteTransaction(object? parameter)
+        private async void OnDeleteTransaction(object? parameter)
         {
             if (parameter is TransactionListDto transaction && Wallet != null)
             {
-                _transactionService.DeleteTransaction(transaction.Id);
-                LoadData(Wallet.Id);
+                try
+                {
+                    IsBusy = true; 
+                    await _transactionService.DeleteTransactionAsync(transaction.Id);
+
+                    Wallet = await _walletService.GetWalletByIdAsync(Wallet.Id);
+                }
+                finally
+                {
+                    IsBusy = false;
+                }
             }
         }
 
