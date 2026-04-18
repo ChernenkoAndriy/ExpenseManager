@@ -1,25 +1,73 @@
-# Expense Manager - Lab 1
+Expense Manager - Final Project
+Багатошаровий WPF-застосунок для обліку фінансів, побудований на базі .NET 10 з використанням шаблону MVVM, принципів SOLID та асинхронної взаємодії з базою даних. Застосунок дозволяє керувати гаманцями (сутність 1-го рівня) та пов'язаними з ними транзакціями (сутність 2-го рівня).
 
-A C# console application for tracking wallets and transactions, built with **Multilayer Architecture** and **SOLID principles**.
+Архітектура проєкту
+Рішення розділене на 4 логічні шари, що забезпечує низьку зв'язність та відповідає принципам чистої архітектури:
 
-## Project Structure
-The solution is divided into 4 projects to ensure **Single Responsibility (SRP)**:
+ExpenseManager.UI: Шар представлення (WPF).
 
-1.  **ExpenseManager.Models**: Contains "clean" data entities (Wallet, Transaction) and Enums.
-    * *Constraint:* No calculated fields or collection properties here.
-2.  **ExpenseManager.ViewModels**: Handles data presentation and UI logic.
-    * *Logic:* Contains calculated properties like `TotalBalance` and `IsExpense`.
-3.  **ExpenseManager.Data**: Acts as the Data Access Layer (DAL).
-    * *Storage:* Includes an `internal` fake storage with pre-defined data (12 transactions).
-    * *Service:* Contains `ExpenseService` for filtering and mapping models.
-4.  **ExpenseManager.ConsoleApp**: The entry point. Handles user input and navigation.
+Використовує Dependency Injection для реєстрації сервісів та ViewModels.
 
-## Key Architecture Features
-- **Decoupled Entities**: Wallet models do not contain lists of transactions. Connections are handled via `WalletId` in the Service layer.
-- **Calculated Logic**: All business logic (e.g., balance summation) is encapsulated in ViewModels, keeping Data Models "pure".
-- **Encapsulation**: Storage is `internal`, meaning it is protected from direct access by the UI layer.
+Реалізує навігацію всередині одного вікна через NavigationService.
 
-## How to Run
-1. Open `ExpenseManager.sln` in JetBrains Rider or Visual Studio.
-2. Set `ExpenseManager.ConsoleApp` as the Startup Project.
-3. Run (F5).
+Всі операції завантаження супроводжуються індикатором прогресу через властивість IsBusy.
+
+ExpenseManager.Services: Шар бізнес-логіки.
+
+Містить інтерфейси та реалізації сервісів IWalletService та ITransactionService.
+
+Використовує DTO для передачі даних між шарами.
+
+ExpenseManager.Data: Шар доступу до даних (DAL).
+
+Використовує Entity Framework Core з провайдером SQLite.
+
+Реалізує патерн Repository для роботи з сутностями.
+
+ExpenseManager.Domain: Шар доменних моделей.
+
+Містить базові сутності Wallet, Transaction та перерахування.
+
+Основні можливості
+Керування гаманцями (1-й рівень)
+CRUD: Додавання, перегляд деталей, редагування та видалення гаманців.
+
+Фільтрація: Вибір гаманців за конкретною валютою.
+
+Сортування: Можливість сортування списку гаманців за назвою.
+
+Каскадне видалення: При видаленні гаманця автоматично видаляються всі пов'язані з ним транзакції завдяки налаштуванням DeleteBehavior.Cascade.
+
+Керування транзакціями (2-й рівень)
+CRUD: Повний цикл керування транзакціями, включаючи редагування через окрему сторінку EditTransactionPage.
+
+Фільтрація: Перегляд усіх транзакцій або розподіл на доходи та витрати.
+
+Сортування: Сортування транзакцій за сумою безпосередньо в таблиці DataGrid через SortMemberPath.
+
+Деталі: Перегляд повної інформації про кожну фінансову операцію.
+
+Сховище та дані
+Застосунок використовує локальну БД SQLite (expenses.db), яка створюється автоматично при першому запуску.
+
+Seeding: Початкове заповнення бази даних тестовими гаманцями та транзакціями реалізовано в методі OnModelCreating.
+
+Асинхронність: Всі запити до репозиторіїв та сервісів виконуються асинхронно, що забезпечує стабільну роботу інтерфейсу.
+
+Технологічний стек
+Платформа: .NET 10.
+
+UI: WPF, XAML.
+
+ORM: Entity Framework Core 10.
+
+Database: SQLite.
+
+DI: Microsoft.Extensions.DependencyInjection.
+
+Як запустити
+Відкрийте файл ExpenseManager.sln у середовищі розробки.
+
+Встановіть проєкт ExpenseManager.UI як Startup Project.
+
+Запустіть проєкт (F5). База даних буде автоматично розгорнута в директорії додатка.
