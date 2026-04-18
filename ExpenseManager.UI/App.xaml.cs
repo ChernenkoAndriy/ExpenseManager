@@ -41,6 +41,7 @@ namespace ExpenseManager.UI
             services.AddTransient<EditWalletViewModel>();
             services.AddTransient<AddTransactionViewModel>();
             services.AddTransient<TransactionDetailsViewModel>();
+            services.AddTransient<EditTransactionViewModel>();
 
             services.AddTransient<IWalletRepository, WalletRepository>();
             services.AddTransient<ITransactionRepository, TransactionRepository>();

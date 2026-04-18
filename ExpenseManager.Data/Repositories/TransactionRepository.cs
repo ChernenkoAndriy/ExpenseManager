@@ -23,9 +23,22 @@ namespace ExpenseManager.Data.Repositories
                 .ToListAsync();
         }
 
+        public async Task<Transaction?> GetByIdAsync(int id)
+        {
+            return await _dbContext.Transactions
+                .AsNoTracking()
+                .FirstOrDefaultAsync(t => t.Id == id);
+        }
+
         public async Task AddAsync(Transaction transaction)
         {
             await _dbContext.Transactions.AddAsync(transaction);
+            await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task UpdateAsync(Transaction transaction)
+        {
+            _dbContext.Transactions.Update(transaction);
             await _dbContext.SaveChangesAsync();
         }
 

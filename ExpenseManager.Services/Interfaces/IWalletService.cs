@@ -6,9 +6,14 @@ namespace ExpenseManager.Services.Interfaces
 {
     public interface IWalletService
     {
-        Task<IEnumerable<WalletListDto>> GetAllWalletsAsync();
-        Task<WalletDetailsDto?> GetWalletByIdAsync(int id);
+        Task<IEnumerable<WalletListDto>> GetAllWalletsAsync(string? currencyFilter = null, bool sortByName = false);
+
+        Task<WalletDetailsDto?> GetWalletByIdAsync(int id, string? transactionTypeFilter = "All");
+
         Task SaveWalletAsync(WalletSaveDto walletDto);
-        IEnumerable<string> GetAvailableCurrencies(); 
+
+        Task DeleteWalletAsync(int id);
+
+        IEnumerable<string> GetAvailableCurrencies();
     }
 }

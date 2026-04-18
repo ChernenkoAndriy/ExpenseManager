@@ -5,42 +5,52 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <Button Grid.Row="0" Content="← До списку" Command="{Binding BackCommand}" 
+        <Button Grid.Row="0" Content="← До списку" 
+                Command="{Binding BackCommand}" 
                 HorizontalAlignment="Left" Background="Transparent" BorderThickness="0" Foreground="Blue" Margin="0,0,0,10"/>
 
-        <DockPanel Grid.Row="1" Margin="0,0,0,20">
+        <DockPanel Grid.Row="1" Margin="0,0,0,10">
             <StackPanel DockPanel.Dock="Left">
                 <TextBlock Text="{Binding Wallet.Name}" FontSize="24" FontWeight="Bold"/>
-
                 <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
                     <TextBlock Text="Поточний баланс: " FontSize="16" Foreground="Gray"/>
-                    <TextBlock Text="{Binding Wallet.TotalBalance, StringFormat={}{0:N2}}" 
-                   FontSize="16" FontWeight="SemiBold"/>
+                    <TextBlock Text="{Binding Wallet.TotalBalance, StringFormat={}{0:N2}}" FontSize="16" FontWeight="SemiBold"/>
                     <TextBlock Text=" " FontSize="16"/>
-                    <TextBlock Text="{Binding Wallet.Currency}" FontSize="16"/>
+                    <TextBlock Text="{Binding Wallet.Currency, Converter={StaticResource EnumConverter}}" FontSize="16"/>
                 </StackPanel>
             </StackPanel>
             <Button Content="+ Додати транзакцію" Command="{Binding AddTransactionCommand}" 
                     Background="#28A745" Foreground="White" Padding="15,8" FontWeight="Bold" DockPanel.Dock="Right" HorizontalAlignment="Right" VerticalAlignment="Center"/>
         </DockPanel>
 
-        <DataGrid Grid.Row="2" ItemsSource="{Binding Wallet.Transactions}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" HeadersVisibility="Column">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="Дата" Binding="{Binding FormattedDate}"/>
-                <DataGridTextColumn Header="Категорія" Binding="{Binding Category, Converter={StaticResource EnumConverter}}"/>
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,0,0, 15">
+            <TextBlock Text="Показати:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+            <RadioButton Content="Усі" IsChecked="{Binding SelectedTypeFilter, Converter={StaticResource EnumConverter}, ConverterParameter=All}" Margin="0,0,10,0" VerticalAlignment="Center"/>
+            <RadioButton Content="Доходи" IsChecked="{Binding SelectedTypeFilter, Converter={StaticResource EnumConverter}, ConverterParameter=Income}" Margin="0,0,10,0" VerticalAlignment="Center"/>
+            <RadioButton Content="Витрати" IsChecked="{Binding SelectedTypeFilter, Converter={StaticResource EnumConverter}, ConverterParameter=Expense}" VerticalAlignment="Center"/>
 
-                <DataGridTemplateColumn Header="Сума">
+            <TextBlock Text="(Натисніть на заголовок 'Сума' для сортування за величиною)" 
+                       Foreground="Gray" VerticalAlignment="Center" Margin="20,0,0,0" FontSize="11" FontStyle="Italic"/>
+        </StackPanel>
+
+        <DataGrid Grid.Row="3" ItemsSource="{Binding Wallet.Transactions}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" HeadersVisibility="Column">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Дата" Binding="{Binding FormattedDate}" Width="Auto"/>
+                <DataGridTextColumn Header="Категорія" Binding="{Binding Category, Converter={StaticResource EnumConverter}}" Width="Auto"/>
+
+                <DataGridTemplateColumn Header="Сума" SortMemberPath="Amount" Width="Auto">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{Binding Amount, StringFormat={}{0:N2}}" FontWeight="Bold">
+                            <TextBlock Text="{Binding Amount, StringFormat={}{0:N2}}" FontWeight="Bold" TextAlignment="Right">
                                 <TextBlock.Style>
                                     <Style TargetType="TextBlock">
                                         <Setter Property="Foreground" Value="Green"/>
                                         <Style.Triggers>
-                                            <DataTrigger Binding="{Binding Amount, Converter={StaticResource EnumConverter}, ConverterParameter=IsNegative}" Value="True">
+                                            <DataTrigger Binding="{Binding IsExpense}" Value="True">
                                                 <Setter Property="Foreground" Value="Red"/>
                                             </DataTrigger>
                                         </Style.Triggers>
@@ -53,17 +63,23 @@
 
                 <DataGridTextColumn Header="Опис" Binding="{Binding Description}" Width="*"/>
 
-                <DataGridTemplateColumn Header="Дії">
+                <DataGridTemplateColumn Header="Дії" Width="Auto">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal">
-                                <Button Content="Деталі" 
-                        Command="{Binding DataContext.ViewTransactionCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" 
-                        CommandParameter="{Binding}" 
-                        Margin="0,0,5,0" Padding="10,2"/>
+                                <Button Content="Редагувати" 
+                                        Command="{Binding DataContext.EditTransactionCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" 
+                                        CommandParameter="{Binding}" 
+                                        Margin="0,0,5,0" Padding="10,2"/>
 
-                                <Button Content="Видалити" Command="{Binding DataContext.DeleteTransactionCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" 
-                        CommandParameter="{Binding}" Foreground="Red" Padding="10,2"/>
+                                <Button Content="Деталі" 
+                                        Command="{Binding DataContext.ViewTransactionCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" 
+                                        CommandParameter="{Binding}" 
+                                        Margin="0,0,5,0" Padding="10,2"/>
+
+                                <Button Content="Видалити" 
+                                        Command="{Binding DataContext.DeleteTransactionCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" 
+                                        CommandParameter="{Binding}" Foreground="Red" Padding="10,2"/>
                             </StackPanel>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>

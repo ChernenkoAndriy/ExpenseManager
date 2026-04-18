@@ -21,11 +21,21 @@ namespace ExpenseManager.Services.Implementations
             _transactionRepository = transactionRepository;
         }
 
-        public async Task<IEnumerable<WalletListDto>> GetAllWalletsAsync()
+        public async Task<IEnumerable<WalletListDto>> GetAllWalletsAsync(string? currencyFilter = null, bool sortByName = false)
         {
             var wallets = await _walletRepository.GetAllAsync();
-            var result = new List<WalletListDto>();
 
+            if (!string.IsNullOrEmpty(currencyFilter))
+            {
+                wallets = wallets.Where(w => w.Currency.ToString() == currencyFilter);
+            }
+
+            if (sortByName)
+            {
+                wallets = wallets.OrderBy(w => w.Name);
+            }
+
+            var result = new List<WalletListDto>();
             foreach (var w in wallets)
             {
                 var transactions = await _transactionRepository.GetByWalletIdAsync(w.Id);
@@ -40,21 +50,27 @@ namespace ExpenseManager.Services.Implementations
             return result;
         }
 
-        public async Task<WalletDetailsDto?> GetWalletByIdAsync(int id)
+        public async Task<WalletDetailsDto?> GetWalletByIdAsync(int id, string? transactionTypeFilter = "All")
         {
             var wallet = await _walletRepository.GetByIdAsync(id);
             if (wallet == null) return null;
 
             var transactions = await _transactionRepository.GetByWalletIdAsync(id);
-            var totalBalance = transactions.Sum(t => t.Amount);
+
+            var filteredTransactions = transactionTypeFilter switch
+            {
+                "Income" => transactions.Where(t => t.Amount > 0),
+                "Expense" => transactions.Where(t => t.Amount < 0),
+                _ => transactions
+            };
 
             return new WalletDetailsDto
             {
                 Id = wallet.Id,
                 Name = wallet.Name,
                 Currency = wallet.Currency.ToString(),
-                TotalBalance = totalBalance,
-                Transactions = transactions.OrderByDescending(t => t.DateTime).Select(t => new TransactionListDto
+                TotalBalance = transactions.Sum(t => t.Amount), 
+                Transactions = filteredTransactions.OrderByDescending(t => t.DateTime).Select(t => new TransactionListDto
                 {
                     Id = t.Id,
                     WalletId = t.WalletId,
@@ -65,6 +81,11 @@ namespace ExpenseManager.Services.Implementations
                     Description = t.Description
                 }).ToList()
             };
+        }
+
+        public async Task DeleteWalletAsync(int id)
+        {
+            await _walletRepository.DeleteAsync(id); 
         }
 
         public async Task SaveWalletAsync(WalletSaveDto walletDto)
@@ -84,18 +105,11 @@ namespace ExpenseManager.Services.Implementations
             }
             else
             {
-                var newWallet = new Wallet(
-                    0,
-                    walletDto.Name,
-                    Enum.Parse<Currency>(walletDto.Currency)
-                );
+                var newWallet = new Wallet(0, walletDto.Name, Enum.Parse<Currency>(walletDto.Currency));
                 await _walletRepository.AddAsync(newWallet);
             }
         }
 
-        public IEnumerable<string> GetAvailableCurrencies()
-        {
-            return Enum.GetNames(typeof(Currency));
-        }
+        public IEnumerable<string> GetAvailableCurrencies() => Enum.GetNames(typeof(Currency));
     }
 }

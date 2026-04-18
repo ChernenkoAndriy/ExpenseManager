@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
 using System.Windows.Data;
 
 namespace ExpenseManager.UI
@@ -8,6 +9,11 @@ namespace ExpenseManager.UI
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value == null) return string.Empty;
+
+            if (parameter != null && (parameter.ToString() == "All" || parameter.ToString() == "Income" || parameter.ToString() == "Expense"))
+            {
+                return value.ToString() == parameter.ToString();
+            }
 
             if (parameter?.ToString() == "IsNegative")
             {
@@ -30,13 +36,21 @@ namespace ExpenseManager.UI
                 "Health" => "Здоров'я",
                 "Salary" => "Зарплата",
                 "Other" => "Інше",
+                "All" => "Усі",
+                "Income" => "Доходи",
+                "Expense" => "Витрати",
                 _ => enumString
             };
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            throw new NotImplementedException();
+            if (value is bool isChecked && isChecked && parameter != null)
+            {
+                return parameter.ToString();
+            }
+
+            return Binding.DoNothing;
         }
     }
 }
